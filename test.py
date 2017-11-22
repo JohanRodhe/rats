@@ -38,26 +38,31 @@ for i in range(data_matrix.shape[1]):
     [peaks.append(idx + i*numsamples) for idx in peakind]
 # look at spectrogram for the peaks
 zoomWidth = 2**15
+facit = []
 for i in range(len(peaks)):
     cursor = int(peaks[i] - round(zoomWidth / 2))
     if cursor < zoomWidth / 2 or cursor > N:
         continue
-    print "Cursor = %d" % cursor
     fp.setpos(cursor)
     win = data[cursor:cursor+2**15]
     f,t,Sxx = signal.spectrogram(win,fs, window=('hamming'), noverlap=2**15/256)
+    fig = plt.figure()
     plt.ylabel('Frequency [Hz]')
     plt.xlabel('Time [sec]')
-    fig = plt.figure()
+    plt.title("Mouse click if sound, key press if not")
     plt.pcolormesh(t,f,Sxx)
     fac = plt.waitforbuttonpress()
+    print "Cursor = %d" % cursor
     if fac:
-        print "keyboard press"
+        print "keyboard press - not sound"
     else:
-        print "mouse click"
+        facit.append(win)
+        print "mouse click - sound added"
 
     plt.close(fig)
-
+    print "peak %s of %d" % (i,len(peaks))
+    print np.shape(facit) 
+    print "-------------------------"
 #b,a = signal.butter(4, 0.16, btype='high', analog=False)
 #w,h = signal.freqz(b,a, worN=2000)
 #plt.plot(w / np.pi, 20*np.log10(abs(h)))
