@@ -14,8 +14,6 @@ fs = fp.getframerate()
 data = np.fromstring(data_str, dtype=np.int16)
 data = data.astype(np.float64)
 data = [d/(2**15) for d in data]
-print np.min(data)
-print np.max(data)
 N = fp.getnframes()
 numsamples = 2**20
 # see if we need to zero pad
@@ -23,18 +21,16 @@ if N / numsamples != 0:
     pad = np.ceil(float(N) / numsamples) * numsamples - N
     padding = np.zeros((int((pad)),))
     data = np.concatenate((data,padding))
-data = np.reshape(data, (numsamples, int((N+pad) / numsamples)))
-print np.shape(data)
+data_matrix = np.reshape(data, (numsamples, int((N+pad) / numsamples)))
 #f,t,Zxx = signal.stft(data, fs, nperseg=256)
-#print np.shape(Zxx)
 nyq = 0.5 * fs
 low = 30000 / nyq
 high = 90000 / nyq
 b,a = signal.butter(4, [low, high], btype='band')
-filt_sig = np.zeros(np.shape(data))
+filt_sig = np.zeros(np.shape(data_matrix))
 peaks = []
-for i in range(data.shape[1]):
-    filt_sig[:,i] = signal.filtfilt(b,a, data[:,i])
+for i in range(data_matrix.shape[1]):
+    filt_sig[:,i] = signal.filtfilt(b,a, data_matrix[:,i])
     filt_sig[:,i] = np.square(filt_sig[:,i])
     filt_sig[:,i] = filters.gaussian_filter1d(filt_sig[:,i],3)
     #peakind = pu.indexes(filt_sig[:,i], thres=0.0002, min_dist=8000)
@@ -46,9 +42,15 @@ for i in range(len(peaks)):
     cursor = int(peaks[i] - round(zoomWidth / 2))
     if cursor < zoomWidth / 2 or cursor > N:
         continue
-    print "Cursor = %d" % cursor
-    fp.setpos(cursor)
-    window = fp.readframes(zoomWidth)
+    cur_w = data[cursor:cursor+zoomWidth]
+    print np.shape(cur_w)
+    f,t,Sxx = signal.spectrogram(cur_w, fs, window=('hamming'), noverlap=2**15/256)
+    plt.pcolormesh(t,f,Sxx)
+    plt.ylabel('Frequency [Hz]')
+    plt.xlabel('Time [sec]')
+    plt.show()
+    pts = plt.ginput()
+    print pts
 #b,a = signal.butter(4, 0.16, btype='high', analog=False)
 #w,h = signal.freqz(b,a, worN=2000)
 #plt.plot(w / np.pi, 20*np.log10(abs(h)))
