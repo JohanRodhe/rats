@@ -23,18 +23,17 @@ if N / numsamples != 0:
     pad = np.ceil(float(N) / numsamples) * numsamples - N
     padding = np.zeros((int((pad)),))
     data = np.concatenate((data,padding))
-data = np.reshape(data, (numsamples, int((N+pad) / numsamples)))
-print np.shape(data)
+data_mat = np.reshape(data, (numsamples, int((N+pad) / numsamples)))
 #f,t,Zxx = signal.stft(data, fs, nperseg=256)
 #print np.shape(Zxx)
 nyq = 0.5 * fs
 low = 30000 / nyq
 high = 90000 / nyq
 b,a = signal.butter(4, [low, high], btype='band')
-filt_sig = np.zeros(np.shape(data))
+filt_sig = np.zeros(np.shape(data_mat))
 peaks = []
-for i in range(data.shape[1]):
-    filt_sig[:,i] = signal.filtfilt(b,a, data[:,i])
+for i in range(data_mat.shape[1]):
+    filt_sig[:,i] = signal.filtfilt(b,a, data_mat[:,i])
     filt_sig[:,i] = np.square(filt_sig[:,i])
     filt_sig[:,i] = filters.gaussian_filter1d(filt_sig[:,i],3)
     #peakind = pu.indexes(filt_sig[:,i], thres=0.0002, min_dist=8000)
@@ -48,7 +47,18 @@ for i in range(len(peaks)):
         continue
     print "Cursor = %d" % cursor
     fp.setpos(cursor)
-    window = fp.readframes(zoomWidth)
+    win = data[cursor:cursor+2**15]
+    f,t,pxx = signal.spectrogram(win,fs, window=('hamming'), noverlap=2**15/266)
+    fig = plt.figure()
+    plt.pcolormesh(t,f,pxx)
+    fac = plt.waitforbuttonpress()
+    if fac:
+        print "keyboard press"
+    else:
+        print "mouse click"
+
+    plt.close(fig)
+
 #b,a = signal.butter(4, 0.16, btype='high', analog=False)
 #w,h = signal.freqz(b,a, worN=2000)
 #plt.plot(w / np.pi, 20*np.log10(abs(h)))
