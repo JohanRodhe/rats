@@ -22,21 +22,30 @@ if N / numsamples != 0:
     padding = np.zeros((int((pad)),))
     data = np.concatenate((data,padding))
 data_matrix = np.reshape(data, (numsamples, int((N+pad) / numsamples)))
-#f,t,Zxx = signal.stft(data, fs, nperseg=256)
-nyq = 0.5 * fs
-low = 30000 / nyq
-high = 90000 / nyq
-b,a = signal.butter(4, [low, high], btype='band')
+nyq = float(0.5 * fs)
+print "nyq=%f" % nyq
+stop_low = 20000.0 / nyq
+print "stop_low=%f" % stop_low
+low = 25000.0 / nyq
+print "low=%f" % low
+#high = 100000.0 / nyq
+#print "high=%f" % high
+#stop_high = 115000 / nyq
+#print "stop_high=%f" % stop_high
+#N_filt,wn = signal.buttord(wp=[low, high], ws=[stop_low, stop_high], gpass=0.1, gstop=30.0)
+N_filt,wn = signal.buttord(wp=low, ws=stop_low, gpass=0.1, gstop=60.0)
+b,a = signal.butter(N_filt, wn, 'highpass')
 filt_sig = np.zeros(np.shape(data_matrix))
 peaks = []
 for i in range(data_matrix.shape[1]):
-    filt_sig[:,i] = signal.filtfilt(b,a, data_matrix[:,i])
+    filt_sig[:,i] = signal.lfilter(b,a, data_matrix[:,i])
     filt_sig[:,i] = np.square(filt_sig[:,i])
     filt_sig[:,i] = filters.gaussian_filter1d(filt_sig[:,i],3)
     #peakind = pu.indexes(filt_sig[:,i], thres=0.0002, min_dist=8000)
-    peakind = detect_peaks(filt_sig[:,i], mph=0.0002, mpd=80000)
+    peakind = detect_peaks(filt_sig[:,i], mph=0.0002, mpd=8000)
     [peaks.append(idx + i*numsamples) for idx in peakind]
 # look at spectrogram for the peaks
+print "#peaks: %d" % len(peaks)
 zoomWidth = 2**15
 for i in range(len(peaks)):
     cursor = int(peaks[i] - round(zoomWidth / 2))
@@ -49,8 +58,6 @@ for i in range(len(peaks)):
     plt.ylabel('Frequency [Hz]')
     plt.xlabel('Time [sec]')
     plt.show()
-    pts = plt.ginput()
-    print pts
 #b,a = signal.butter(4, 0.16, btype='high', analog=False)
 #w,h = signal.freqz(b,a, worN=2000)
 #plt.plot(w / np.pi, 20*np.log10(abs(h)))
