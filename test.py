@@ -13,7 +13,7 @@ fs = fp.getframerate()
 # the sound data is in 16bit PCM, hence the np.int16
 data = np.fromstring(data_str, dtype=np.int16)
 data = data.astype(np.float64)
-data = [d/(2**15) for d in data]
+data = [d0 -1 -2;-1 8+kappa2 -1;-2 -1 0/(2**15) for d in data]
 N = fp.getnframes()
 numsamples = 2**20
 # see if we need to zero pad

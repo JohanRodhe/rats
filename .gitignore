@@ -1,3 +1,7 @@
 tags
 data
 *.pyc
+.DS_store
+*.h5
+datasets/*
+*.swp
