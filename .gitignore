@@ -6,3 +6,4 @@ data
 datasets/*
 *.swp
 *.log
+*.txt
