@@ -15,7 +15,7 @@ epochs = 12
 # input image dimensions
 img_rows, img_cols = 123, 41
 # the data, shuffled and split between train and test sets
-(x_train, y_train), (x_test, y_test) = load_data.load_data('datasets')
+(x_train, y_train), (x_test, y_test) = load_data.load_data('datasets', 0.8)
 
 if K.image_data_format() == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
