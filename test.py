@@ -13,7 +13,7 @@ fs = fp.getframerate()
 # the sound data is in 16bit PCM, hence the np.int16
 data = np.fromstring(data_str, dtype=np.int16)
 data = data.astype(np.float64)
-data = [d0 -1 -2;-1 8+kappa2 -1;-2 -1 0/(2**15) for d in data]
+data = [d/(2**15) for d in data]
 N = fp.getnframes()
 numsamples = 2**20
 # see if we need to zero pad
@@ -22,30 +22,21 @@ if N / numsamples != 0:
     padding = np.zeros((int((pad)),))
     data = np.concatenate((data,padding))
 data_matrix = np.reshape(data, (numsamples, int((N+pad) / numsamples)))
-nyq = float(0.5 * fs)
-print "nyq=%f" % nyq
-stop_low = 20000.0 / nyq
-print "stop_low=%f" % stop_low
-low = 25000.0 / nyq
-print "low=%f" % low
-#high = 100000.0 / nyq
-#print "high=%f" % high
-#stop_high = 115000 / nyq
-#print "stop_high=%f" % stop_high
-#N_filt,wn = signal.buttord(wp=[low, high], ws=[stop_low, stop_high], gpass=0.1, gstop=30.0)
-N_filt,wn = signal.buttord(wp=low, ws=stop_low, gpass=0.1, gstop=60.0)
-b,a = signal.butter(N_filt, wn, 'highpass')
+#f,t,Zxx = signal.stft(data, fs, nperseg=256)
+nyq = 0.5 * fs
+low = 30000 / nyq
+high = 90000 / nyq
+b,a = signal.butter(4, [low, high], btype='band')
 filt_sig = np.zeros(np.shape(data_matrix))
 peaks = []
 for i in range(data_matrix.shape[1]):
-    filt_sig[:,i] = signal.lfilter(b,a, data_matrix[:,i])
+    filt_sig[:,i] = signal.filtfilt(b,a, data_matrix[:,i])
     filt_sig[:,i] = np.square(filt_sig[:,i])
     filt_sig[:,i] = filters.gaussian_filter1d(filt_sig[:,i],3)
     #peakind = pu.indexes(filt_sig[:,i], thres=0.0002, min_dist=8000)
-    peakind = detect_peaks(filt_sig[:,i], mph=0.0002, mpd=8000)
+    peakind = detect_peaks(filt_sig[:,i], mph=0.0002, mpd=80000)
     [peaks.append(idx + i*numsamples) for idx in peakind]
 # look at spectrogram for the peaks
-print "#peaks: %d" % len(peaks)
 zoomWidth = 2**15
 facit = []
 for i in range(len(peaks)):
