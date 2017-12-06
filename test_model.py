@@ -1,5 +1,4 @@
 import keras
-import itertools
 from keras.models import load_model
 from keras.utils import plot_model
 import matplotlib.image as img
@@ -8,6 +7,7 @@ import numpy as np
 import glob
 import load_data
 from sklearn.metrics import confusion_matrix
+import itertools
 
 img_rows, img_cols = 123,41
 n = img_rows * img_cols
