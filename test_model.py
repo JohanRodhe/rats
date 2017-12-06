@@ -16,14 +16,11 @@ y_pred = []
 x_test_re = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 probs = model.predict_on_batch(x_test_re)
 for i in range(0,probs.shape[0]):
-    if np.argmax(probs[i]) == 1 and np.max(probs) >= 0.75:
-        y_pred.append(1)
-    else:
-        y_pred.append(0)
- 
+    y_pred.append(np.argmax(probs[i]))
+
 preds = keras.utils.to_categorical(y_pred, num_classes)
-#res = preds - y_test
-#rate = np.count_nonzero(res, 0)
 conf = confusion_matrix(y_test, y_pred)
 print (conf)
-#print (y_test)
+rate = np.count_nonzero(y_test - y_pred, 0)
+acc = (1 - (float(rate)/float(len(y_test)))) * 100
+print ("accuracy: %s" % acc)
