@@ -11,9 +11,9 @@ sounds = []
 for image in data:
     current_image = img.imread(image)
     current_image = current_image.reshape(1, img_rows, img_cols, 1)
-    probs = model.predict(current_image)
-    if np.argmax(probs) == 1 and np.max(probs) >= 0.75:
-        sounds.append(image)
+probs = model.predict(current_image)
+if np.argmax(probs) == 1 and np.max(probs) >= 0.75:
+    sounds.append(image)
 with open('sounds.txt', 'w') as fp:
     for sound in sounds:
         print>>fp, sound

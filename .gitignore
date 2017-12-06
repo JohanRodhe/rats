@@ -5,4 +5,5 @@ data
 *.h5
 datasets/*
 *.swp
+*.log
 *.txt
