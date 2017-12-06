@@ -12,17 +12,14 @@ from sklearn.metrics import confusion_matrix
 img_rows, img_cols = 123,41
 n = img_rows * img_cols
 model = load_model('rats_cnn.h5')
-num_class_names = 2
-(x_train, y_train), (x_test, y_test) = load_data.load_data('datasets/test_set', 0.0)
-y_test_cat = keras.utils.to_categorical(y_test, num_class_names) 
+num_classes = 2
+(x_test, y_test) = load_data.load_data('datasets/green')
 y_pred = []
 x_test_re = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 probs = model.predict_on_batch(x_test_re)
-
 for i in range(0,probs.shape[0]):
     y_pred.append(np.argmax(probs[i]))
 
-preds = keras.utils.to_categorical(y_pred, num_class_names)
 cm = confusion_matrix(y_test, y_pred)
 #print (cm)
 rate = np.count_nonzero(y_test - y_pred, 0)
