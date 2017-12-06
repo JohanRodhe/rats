@@ -4,7 +4,8 @@ import math
 import numpy as np
 import random
 
-def load_data(data_dir, split):
+def load_data(data_dir, split=1.0):
+    """ Returns X,Y partioned into test and train sets as row vectors."""
     n = 123 * 41
     positive_examples = glob.glob(data_dir + '/positive_set/*.png')
     negative_examples = glob.glob(data_dir + '/negative_set/*.png')
@@ -21,6 +22,9 @@ def load_data(data_dir, split):
     y_train = arr[-1,0:part_train]
     x_test = arr[0:-1,part_train:]
     y_test = arr[-1,part_train:]
-    return (x_train.T, y_train.T),(x_test.T,y_test.T)
+    if split == 1.0:
+        return (x_train.T, y_train.T)
+    else:
+        return (x_train.T, y_train.T),(x_test.T,y_test.T)
 
 
