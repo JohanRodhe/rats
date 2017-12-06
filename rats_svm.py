@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.svm import SVC, NuSVC
+from sklearn import svm
 from load_data import load_data
 from sklearn.metrics import confusion_matrix
 import itertools
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 #load the data
 (x_train, y_train) = load_data('datasets/red')
 (x_test, y_test) = load_data('datasets/green')
-clf = NuSVC()
+clf = svm.NuSVC()
 clf.fit(x_train, y_train)
 accuracy = clf.score(x_test, y_test)
 print "accuracy=%f" % accuracy
@@ -20,8 +20,6 @@ cm = confusion_matrix(y_test, y_pred)
 #print (cm)
 rate = np.count_nonzero(y_test - y_pred, 0)
 acc = (1 - (float(rate)/float(len(y_test)))) * 100
-
-#plot_model(model,show_shapes=True, to_file='model.png')
 
 class_names = ['Sound','Not sound']
 title = 'Confusion matrix'
@@ -44,5 +42,4 @@ for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
 plt.tight_layout()
 plt.ylabel('True label')
 plt.xlabel('Predicted label')
-#print("HEJ")
 plt.show()
