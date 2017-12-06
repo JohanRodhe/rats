@@ -7,18 +7,47 @@ import glob
 import load_data
 import matplotlib.pyplot as plt
 import numpy as np 
+# this is the size of our encoded representations
+encoding_dim = 32  # 32 floats -> compression of factor 24.5, assuming the input is 784 floats
+batch_size = 128
+original_dim = 5043
+latent_dim = 2
+intermediate_dim = 128
+x_train = x_train.astype('float32') / 255.
+x_test = x_test.astype('float32') / 255.
+x_train = np.reshape(x_train, (len(x_train), 123, 41, 1))  # adapt this if using `channels_first` image data format
+x_test = np.reshape(x_test, (len(x_test), 123, 41, 1))  # adapt this if using `channels_first` image data format
 
-#(X_train, Y_train), (X_test, Y_test) = load_data.load_data('datasets',0.5)### AN EXAMPLE OF SIMPLE AUTOENCODER ###
-data = glob.glob('datasets/test_set/positive_set/*.png')
+# this is our input placeholder
+input_img = Input(shape=(123,41,1))
+# "encoded" is the encoded representation of the input
+encoded = Dense(encoding_dim, activation='relu')(input_img)
+# "decoded" is the lossy reconstruction of the input
+decoded = Dense(784, activation='sigmoid')(encoded)
 
+# this model maps an input to its reconstruction
+autoencoder = Model(input_img, decoded)
+encoder = Model(input_img, encoded)
+encoded_input = Input(shape=(encoding_dim,))
+autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+(x_train, y_train), (x_test, y_test) = load_data.load_data('datasets',0.8)### AN EXAMPLE OF SIMPLE AUTOENCODER ###
+#data = glob.glob('datasets/test_set/positive_set/*.png')
+#x_train = x_train.astype('float32') / 255.
+#x_test = x_test.astype('float32') / 255.
+#x_train = x_train.reshape((len(x_train), np.prod(x_train.shape[1:])))
+#x_test = x_test.reshape((len(x_test), np.prod(x_test.shape[1:])))
+x = Input(batch_shape=(batch_size, original_dim))
+h = Dense(intermediate_dim, activation='relu')(x)
+z_mean = Dense(latent_dim)(h)
+#autoencoder.fit(x_train, x_train, epochs= 50, batch_size=128, shuffle=True,
+#                validation_data=(x_test,x_test))
 # InputLayer (None, 10)
 #      Dense (None, 5
 #      Dense (None, 10)
-ncol = len(data)
+#ncol = len(data)
 #print(X_train.shape)
 #print(X_test.shape)
-input_dim = Input(shape = (ncol, ))
-
+#input_dim = Input(shape = (ncol, ))
 # DEFINE THE DIMENSION OF ENCODER ASSUMED 3
 #encoding_dim = 2
 
@@ -27,7 +56,8 @@ input_dim = Input(shape = (ncol, ))
 
 ## DEFINE THE DECODER LAYER
 #decoded = Dense(ncol, activation = 'sigmoid')(encoded)
-
+encoder = Model(x, z_mean)
+x_test_encoded = encoder.predict(x_test, batch_size=batch_size)
 ## COMBINE ENCODER AND DECODER INTO AN AUTOENCODER MODEL
 #autoencoder = Model(input = input_dim, output = decoded)
 
@@ -41,7 +71,9 @@ input_dim = Input(shape = (ncol, ))
 #encoded_out = encoder.predict(X_test)
 ##encoded_out[0:2]
 #print(encoded_out)
+#print(np.shape(data))
+#x_test_encoded = encoder.predict(x_test, batch_size=batch_size)
 plt.figure(figsize=(6, 6))
-print(np.shape(data))
 plt.scatter(x_test_encoded[:, 0], x_test_encoded[:, 1], c=y_test)
+plt.colorbar()
 plt.show()
