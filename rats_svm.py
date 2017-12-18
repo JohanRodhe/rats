@@ -21,7 +21,7 @@ cm = confusion_matrix(y_test, y_pred)
 rate = np.count_nonzero(y_test - y_pred, 0)
 acc = (1 - (float(rate)/float(len(y_test)))) * 100
 
-class_names = ['Sound','Not sound']
+class_names = ['Not sound','Sound']
 title = 'Confusion matrix'
 cmap = plt.cm.Blues
 plt.figure()

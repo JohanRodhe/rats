@@ -14,20 +14,19 @@ n = img_rows * img_cols
 model = load_model('rats_cnn.h5')
 num_classes = 2
 (x_test, y_test) = load_data.load_data('datasets/green')
-print (np.shape(x_test))
 y_pred = []
 x_test_re = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
-print (np.shape(x_test_re))
 probs = model.predict_on_batch(x_test_re)
 for i in range(0,probs.shape[0]):
     y_pred.append(np.argmax(probs[i]))
-    if y_pred[i] != y_test[i]:
-        plt.figure()
-        plt.imshow(x_test_re[i,:,:,0], cmap='gray')
-        print ('true label: %s ' % y_test[i], ' pred label: %s ' % y_pred[i])
-        plt.show()
+# Show wrong examples:
+#    if y_pred[i] != y_test[i]:
+#        plt.figure()
+#        plt.imshow(x_test_re[i,:,:,0], cmap='gray')
+#        print ('true label: %s ' % y_test[i], ' pred label: %s ' % y_pred[i])
+#        plt.show()
+
 cm = confusion_matrix(y_test, y_pred)
-#print (cm)
 rate = np.count_nonzero(y_test - y_pred, 0)
 acc = (1 - (float(rate)/float(len(y_test)))) * 100
 print (acc)
