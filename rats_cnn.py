@@ -14,7 +14,7 @@ epochs = 12
 # input image dimensions
 img_rows, img_cols = 123, 41
 # the data, shuffled and split between train and test sets
-(x_train, y_train), (x_test, y_test) = load_data.load_data('datasets/red', 0.8)
+(x_train, y_train), (x_test, y_test) = load_data.load_data('datasets/red', 0.9)
 
 if K.image_data_format() == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
@@ -37,7 +37,7 @@ model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
                  input_shape=input_shape))
-model.add(Conv2D(64, (3, 3), activation='selu'))
+model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 model.add(Flatten())
@@ -46,7 +46,7 @@ model.add(Dropout(0.5))
 model.add(Dense(num_classes, activation='softmax'))
 
 model.compile(loss=keras.losses.binary_crossentropy,
-              optimizer=keras.optimizers.RMSprop(),
+              optimizer='adam',
               metrics=['accuracy'])
 
 model.fit(x_train, y_train,

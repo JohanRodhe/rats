@@ -113,7 +113,7 @@ decoded = Dense(ncol, activation = 'sigmoid')(encoded)
 autoencoder = Model(input = input_dim, output = decoded)
 # CONFIGURE AND TRAIN THE AUTOENCODER
 autoencoder.compile(optimizer = 'adadelta', loss = 'binary_crossentropy')
-autoencoder.fit(x_train, x_train, nb_epoch = 100, batch_size = 100, shuffle = True, validation_data = (x_test, x_test))
+autoencoder.fit(x_train, x_train, nb_epoch = 200, batch_size = 100, shuffle = True, validation_data = (x_test, x_test))
 # DEFINE THE ENCODER LAYERS
 # CONFIGURE AND TRAIN THE AUTOENCODER
 autoencoder.compile(optimizer = 'adadelta', loss = 'binary_crossentropy')
@@ -121,7 +121,7 @@ autoencoder.compile(optimizer = 'adadelta', loss = 'binary_crossentropy')
 # THE ENCODER TO EXTRACT THE REDUCED DIMENSION FROM THE ABOVE AUTOENCODER
 encoder = Model(input = input_dim, output = encoded)
 encoded_input = Input(shape = (encoding_dim, ))
-x_test_encoded = encoder.predict(x_test2, batch_size=128)
+x_test_encoded = encoder.predict(x_test2, batch_size=100)
 print(x_test_encoded.shape)
 plt.figure(figsize=(6, 6))
 plt.scatter(x_test_encoded[:, 0], x_test_encoded[:, 1], c=y_test2)
